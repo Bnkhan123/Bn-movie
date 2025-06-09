@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie App - User Panel</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ff4500;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 2px 2px 4px rgba(255, 69, 0, 0.5);
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            background: linear-gradient(45deg, #ff6200, #ff4500);
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .category-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-section input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .note {
+            background-color: #28a745;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .latest-movies {
+            margin-bottom: 20px;
+        }
+
+        .latest-movies h2 {
+            font-size: 2em;
+            color: #ff6200;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            text-shadow: 1px 1px 3px rgba(255, 69, 0, 0.7);
+        }
+
+        .latest-movies h2::before {
+            content: '🔥';
+            margin-right: 10px;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .movie-card {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+
+        .movie-card .info {
+            padding: 10px;
+        }
+
+        .movie-card h3 {
+            margin: 0;
+            font-size: 1.2em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        .movie-card p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        .movie-card p.description {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .movie-card .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .movie-card button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .movie-card .watch-btn {
+            background: linear-gradient(45deg, #28a745, #218838);
+            color: #fff;
+        }
+
+        .movie-card .watch-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .movie-card .download-btn {
+            background: linear-gradient(45deg, #ff6200, #ff4500);
+            color: #fff;
+        }
+
+        .movie-card .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">BN MOVIES</div>
+        </div>
+
+        <div id="category-container" class="categories">
+            <!-- Categories will be dynamically populated -->
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="Search for a movie by name..." onkeyup="searchMovies()">
+        </div>
+
+        <div class="note">
+            Welcome to Our Movie App! Enjoy the Latest Movies and TV Shows.
+        </div>
+
+        <div class="latest-movies">
+            <h2>Latest Movies</h2>
+            <div id="movie-list" class="movie-grid"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt4QXKF2bxniZQJOSuVar-0chhj_e_xT8",
+            authDomain: "e-commerce-store-9f306.firebaseapp.com",
+            projectId: "e-commerce-store-9f306",
+            storageBucket: "e-commerce-store-9f306.firebasestorage.app",
+            messagingSenderId: "125749736362",
+            appId: "1:125749736362:web:31706d499c4027d62e31d3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const movieList = document.getElementById('movie-list');
+        const categoryContainer = document.getElementById('category-container');
+        const searchInput = document.getElementById('searchInput');
+        let movies = [];
+        let categories = new Set();
+
+        async function loadMovies() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "movies"));
+                movies = [];
+                movieList.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const movie = { id: doc.id, ...doc.data() };
+                    movies.push(movie);
+                    if (movie.category) {
+                        categories.add(movie.category);
+                    }
+                    displayMovie(movie);
+                });
+                populateCategories();
+            } catch (error) {
+                console.error("Error loading movies: ", error);
+            }
+        }
+
+        function displayMovie(movie) {
+            const movieCard = document.createElement('div');
+            movieCard.classList.add('movie-card');
+            movieCard.innerHTML = `
+                <img src="${movie.posterUrl || 'https://via.placeholder.com/300x280'}" alt="${movie.title}">
+                <div class="info">
+                    <h3>${movie.title}</h3>
+                    <p>${movie.category || 'Unknown'} - 720p WEB-DL</p>
+                    <p class="description">${movie.description || 'No description available'}</p>
+                    <div class="buttons">
+                        <button class="watch-btn" onclick="window.open('${movie.movieUrl || '#'}', '_blank')">Watch Now</button>
+                        <button class="download-btn" onclick="window.location.href='${movie.movieUrl || '#'}'">Download</button>
+                    </div>
+                </div>
+            `;
+            movieList.appendChild(movieCard);
+        }
+
+        function populateCategories() {
+            categoryContainer.innerHTML = '';
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.classList.add('category-btn');
+                button.setAttribute('data-category', category);
+                button.textContent = category;
+                button.addEventListener('click', () => filterMovies(category));
+                categoryContainer.appendChild(button);
+            });
+        }
+
+        function filterMovies(category) {
+            movieList.innerHTML = '';
+            movies.forEach(movie => {
+                if (category === 'all' || movie.category === category) {
+                    displayMovie(movie);
+                }
+            });
+        }
+
+        function searchMovies() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            movieList.innerHTML = '';
+            if (searchTerm === '') {
+                loadMovies(); // Reload all movies if search term is empty
+                return;
+            }
+            const filteredMovies = movies.filter(movie => 
+                movie.title && movie.title.toLowerCase().includes(searchTerm)
+            );
+            if (filteredMovies.length > 0) {
+                filteredMovies.forEach(movie => displayMovie(movie));
+            } else {
+                movieList.innerHTML = '<p>No movies found.</p>';
+            }
+        }
+
+        searchInput.addEventListener('keyup', searchMovies);
+
+        window.onload = loadMovies;
+    </script>
+</body>
+</html>

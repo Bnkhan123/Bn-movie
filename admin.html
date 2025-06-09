@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie App - Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #141414;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .upload-section {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .upload-section input, .upload-section select {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .upload-section button {
+            width: 100%;
+            padding: 10px;
+            background-color: #e50914;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .upload-section button:hover {
+            background-color: #ff1a23;
+        }
+
+        .movie-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .movie-item {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .movie-item img {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .movie-item .info {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .movie-item .info p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        .movie-item button {
+            padding: 5px 10px;
+            background-color: #e50914;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .movie-item button:hover {
+            background-color: #ff1a23;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel - Movie Upload</h1>
+        <div class="upload-section">
+            <h2>Upload Movie</h2>
+            <input type="text" id="movieTitle" placeholder="Movie Title">
+            <input type="text" id="moviePosterUrl" placeholder="Movie Poster URL">
+            <input type="text" id="movieUrl" placeholder="Movie URL">
+            <input type="text" id="movieDescription" placeholder="Movie Description">
+            <select id="movieCategory">
+                <option value="">Select or Add Category</option>
+                <option value="Bollywood">Bollywood</option>
+                <option value="Hollywood">Hollywood</option>
+                <option value="Bangla">Bangla</option>
+                <option value="TV Shows">TV Shows</option>
+                <option value="add-new">Add New Category</option>
+            </select>
+            <input type="text" id="newCategoryInput" placeholder="Enter new category name" style="display: none; margin-top: 10px;">
+            <button id="uploadMovieBtn">Upload Movie</button>
+        </div>
+        <div id="movie-list" class="movie-list"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt4QXKF2bxniZQJOSuVar-0chhj_e_xT8",
+            authDomain: "e-commerce-store-9f306.firebaseapp.com",
+            projectId: "e-commerce-store-9f306",
+            storageBucket: "e-commerce-store-9f306.firebasestorage.app",
+            messagingSenderId: "125749736362",
+            appId: "1:125749736362:web:31706d499c4027d62e31d3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const movieTitle = document.getElementById('movieTitle');
+        const moviePosterUrl = document.getElementById('moviePosterUrl');
+        const movieUrl = document.getElementById('movieUrl');
+        const movieDescription = document.getElementById('movieDescription');
+        const movieCategory = document.getElementById('movieCategory');
+        const newCategoryInput = document.getElementById('newCategoryInput');
+        const uploadMovieBtn = document.getElementById('uploadMovieBtn');
+        const movieList = document.getElementById('movie-list');
+
+        movieCategory.addEventListener('change', () => {
+            if (movieCategory.value === 'add-new') {
+                newCategoryInput.style.display = 'block';
+                newCategoryInput.focus();
+            } else {
+                newCategoryInput.style.display = 'none';
+                newCategoryInput.value = '';
+            }
+        });
+
+        async function loadMovies() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "movies"));
+                movieList.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const movie = doc.data();
+                    const movieItem = document.createElement('div');
+                    movieItem.classList.add('movie-item');
+                    movieItem.innerHTML = `
+                        <img src="${movie.posterUrl}" alt="${movie.title}">
+                        <div class="info">
+                            <h3>${movie.title}</h3>
+                            <p>Category: ${movie.category}</p>
+                            <p>Description: ${movie.description || 'No description available'}</p>
+                            <p>URL: ${movie.movieUrl}</p>
+                        </div>
+                        <div>
+                            <button onclick="editMovie('${doc.id}', '${encodeURIComponent(movie.title)}', '${encodeURIComponent(movie.posterUrl)}', '${encodeURIComponent(movie.movieUrl)}', '${encodeURIComponent(movie.category)}', '${encodeURIComponent(movie.description || '')}')">Edit</button>
+                            <button onclick="deleteMovie('${doc.id}')">Delete</button>
+                        </div>
+                    `;
+                    movieList.appendChild(movieItem);
+                });
+            } catch (error) {
+                console.error("Error loading movies: ", error);
+            }
+        }
+
+        uploadMovieBtn.addEventListener('click', async () => {
+            if (!movieTitle.value || !moviePosterUrl.value || !movieUrl.value || !movieDescription.value) {
+                alert("Please fill in all fields.");
+                return;
+            }
+            let category = movieCategory.value;
+            if (category === 'add-new' && newCategoryInput.value) {
+                category = newCategoryInput.value.trim();
+            } else if (!category || category === 'add-new') {
+                alert("Please select or enter a valid category.");
+                return;
+            }
+            try {
+                await addDoc(collection(db, "movies"), {
+                    title: movieTitle.value,
+                    posterUrl: moviePosterUrl.value,
+                    movieUrl: movieUrl.value,
+                    category: category,
+                    description: movieDescription.value
+                });
+                movieTitle.value = '';
+                moviePosterUrl.value = '';
+                movieUrl.value = '';
+                movieDescription.value = '';
+                newCategoryInput.value = '';
+                newCategoryInput.style.display = 'none';
+                movieCategory.value = '';
+                loadMovies();
+            } catch (error) {
+                console.error("Error uploading movie: ", error);
+            }
+        });
+
+        window.editMovie = async (id, title, posterUrl, movieUrl, category, description) => {
+            const decodedTitle = decodeURIComponent(title);
+            const decodedPosterUrl = decodeURIComponent(posterUrl);
+            const decodedMovieUrl = decodeURIComponent(movieUrl);
+            const decodedCategory = decodeURIComponent(category);
+            const decodedDescription = decodeURIComponent(description);
+
+            const newTitle = prompt("Enter new movie title", decodedTitle);
+            const newPosterUrl = prompt("Enter new poster URL", decodedPosterUrl);
+            const newMovieUrl = prompt("Enter new movie URL", decodedMovieUrl);
+            const newCategory = prompt("Enter new category", decodedCategory);
+            const newDescription = prompt("Enter new description", decodedDescription);
+
+            if (newTitle && newPosterUrl && newMovieUrl && newCategory && newDescription) {
+                try {
+                    const movieRef = doc(db, "movies", id);
+                    await updateDoc(movieRef, {
+                        title: newTitle,
+                        posterUrl: newPosterUrl,
+                        movieUrl: newMovieUrl,
+                        category: newCategory,
+                        description: newDescription
+                    });
+                    loadMovies();
+                } catch (error) {
+                    console.error("Error editing movie: ", error);
+                }
+            }
+        };
+
+        window.deleteMovie = async (id) => {
+            if (confirm("Are you sure you want to delete this movie?")) {
+                try {
+                    await deleteDoc(doc(db, "movies", id));
+                    loadMovies();
+                } catch (error) {
+                    console.error("Error deleting movie: ", error);
+                }
+            }
+        };
+
+        window.onload = loadMovies;
+    </script>
+</body>
+</html>
