@@ -1,563 +1,417 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie App - User Panel</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #000;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            font-size: 3em;
-            font-weight: bold;
-            color: #ff4500;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 2px 2px 4px rgba(255, 69, 0, 0.5);
-        }
-
-        /* Top Category Buttons (Optional if using category sections) */
-        /* .categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .category-btn {
-            background: linear-gradient(45deg, #ff6200, #ff4500);
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .category-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
-        } */
-        /* Hide top category buttons if you want to only use the sections */
-        .categories {
-            display: none; /* Hide the top category buttons */
-        }
-
-
-        .search-section {
-            margin-bottom: 20px;
-        }
-
-        .search-section input {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background-color: #1a1a1a;
-            color: #fff;
-            font-size: 1em;
-        }
-
-        .note {
-            background-color: #28a745;
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-        }
-
-        /* Styles for Category Sections */
-        .category-section {
-            margin-bottom: 30px;
-        }
-
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-left: 10px; /* Align with movie cards padding */
-        }
-
-        .category-header h2 {
-            font-size: 1.8em;
-            color: #ff6200;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            text-shadow: 1px 1px 3px rgba(255, 69, 0, 0.7);
-        }
-
-        .category-header h2::before {
-            content: '🔥'; /* Or any relevant icon */
-            margin-right: 10px;
-            font-size: 1.2em; /* Adjust size of icon */
-        }
-
-        .see-all-btn {
-            background-color: #e50914; /* Netflix red */
-            color: #fff;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-        }
-
-        .see-all-btn:hover {
-            background-color: #ff1a23;
-        }
-
-        /* Navigation arrows (Optional - more complex with JS) */
-        /* .nav-arrows button {
-            background: rgba(0, 0, 0, 0.5);
-            border: none;
-            color: white;
-            padding: 10px;
-            cursor: pointer;
-            margin: 0 5px;
-        } */
-
-
-        .movie-row {
-            display: flex;
-            overflow-x: auto; /* Enable horizontal scrolling */
-            gap: 15px; /* Space between movie cards */
-            padding-bottom: 15px; /* Space for scrollbar */
-            /* Style scrollbar */
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: #ff4500 #1a1a1a; /* Firefox thumb and track */
-        }
-
-        .movie-row::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .movie-row::-webkit-scrollbar-track {
-            background: #1a1a1a;
-            border-radius: 10px;
-        }
-
-        .movie-row::-webkit-scrollbar-thumb {
-            background: #ff4500;
-            border-radius: 10px;
-        }
-
-        .movie-row::-webkit-scrollbar-thumb:hover {
-            background: #ff6200;
-        }
-
-
-        .movie-card {
-            background-color: #1a1a1a;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            flex: 0 0 auto; /* Prevent shrinking/growing, base size on width */
-            width: 180px; /* Fixed width for card in row */
-            position: relative; /* Needed for absolute positioning of labels */
-        }
-
-        .movie-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .movie-card img {
-            width: 100%;
-            height: 260px; /* Adjust height to fit width */
-            object-fit: cover;
-        }
-
-        .movie-card .info {
-            padding: 10px;
-        }
-
-         /* Quality Label Style */
-        .quality-label {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background-color: rgba(229, 9, 20, 0.9); /* Reddish transparent */
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-            z-index: 10; /* Ensure it's above image */
-        }
-
-
-        .movie-card h3 {
-            margin: 0 0 5px 0; /* Add space below title */
-            font-size: 1.1em; /* Slightly smaller title in row */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #fff;
-        }
-
-        .movie-card p {
-            margin: 2px 0; /* Less space between small text */
-            font-size: 0.8em; /* Smaller text */
-            color: #ccc;
-        }
-
-        .movie-card p.description {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-             /* Hide description in row view for brevity */
-            display: none;
-        }
-
-        .movie-card .buttons {
-            display: flex;
-            gap: 5px; /* Smaller gap between buttons */
-            margin-top: 8px; /* Less space above buttons */
-        }
-
-        .movie-card button {
-            flex: 1;
-            padding: 8px; /* Smaller padding */
-            border: none;
-            border-radius: 4px; /* Smaller radius */
-            cursor: pointer;
-            font-size: 0.8em; /* Smaller font */
-            font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .movie-card .watch-btn {
-            background: linear-gradient(45deg, #28a745, #218838);
-            color: #fff;
-        }
-
-        .movie-card .watch-btn:hover {
-            transform: scale(1.03); /* Slightly smaller scale effect */
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.5);
-        }
-
-        .movie-card .download-btn {
-            background: linear-gradient(45deg, #ff6200, #ff4500);
-            color: #fff;
-        }
-
-        .movie-card .download-btn:hover {
-            transform: scale(1.03); /* Slightly smaller scale effect */
-            box-shadow: 0 2px 8px rgba(255, 69, 0, 0.5);
-        }
-
-        /* Style for grid view when filtering/searching (Optional) */
-         .movie-grid-filtered {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive grid */
-            gap: 20px;
-            margin-top: 20px;
-         }
-         .movie-grid-filtered .movie-card {
-             width: auto; /* Let grid manage width */
-             flex: unset;
-         }
-         .movie-grid-filtered .movie-card .info p.description {
-             display: -webkit-box; /* Show description in grid view */
-         }
-
-    </style>
+    <title>BN MOVIES - বাংলা মুভি অ্যাপ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- CSS ফাইল লিংক করা হলো -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
+        <!-- হেডার -->
         <div class="header">
-            <div class="logo">BN MOVIES</div>
-        </div>
-      <!-- Top Category Buttons (Hidden as per example image) -->
-        <div id="category-container" class="categories">
-            <!-- Categories will be dynamically populated -->
+            <div class="logo">BNMOVIES</div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
         </div>
 
+        <!-- লোডিং স্পিনার -->
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>লোড হচ্ছে...</p>
+        </div>
+
+        <!-- ক্যাটাগরি ন্যাভিগেশন -->
+        <nav class="category-nav" id="category-nav">
+            <!-- ডাইনামিক্যালি পপুলেটেড -->
+        </nav>
+
+        <!-- সার্চ সেকশন -->
         <div class="search-section">
-            <input type="text" id="searchInput" placeholder="Search for a movie by name...">
+            <input type="text" id="searchInput" placeholder="মুভি খুঁজুন...">
+            <i class="fas fa-search search-icon"></i>
         </div>
 
+        <!-- স্বাগত নোট -->
         <div class="note">
-            Welcome to Our " BN Movie " App! Enjoy the Latest Movies and TV Shows.
+            BN MOVIE অ্যাপে স্বাগতম! সর্বশেষ মুভি এবং টিভি সিরিজ উপভোগ করুন।
         </div>
-           <!-- Container for Category Sections or Filtered Results -->
+
+        <!-- ক্যাটাগরি সেকশন কন্টেইনার -->
         <div id="category-sections">
-            <!-- Category sections (Bangla, Hindi Dubbed, WEB Series etc.) will be dynamically populated here -->
+            <!-- ডাইনামিক্যালি পপুলেটেড -->
         </div>
 
-        <!-- You might keep a separate container for search results if you don't want to replace category sections -->
-        <!-- <div id="search-results" class="movie-grid-filtered" style="display: none;"></div> -->
-
+        <!-- মুভি মডাল -->
+        <div id="movieModal" class="modal">
+            <div class="modal-content">
+                <button class="close-modal">&times;</button>
+                <div id="modalContent"></div>
+            </div>
+        </div>
     </div>
 
+    <!-- জাভাস্ক্রিপ্ট কোড (ফায়ারবেস কনফিগারেশন সহ) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBt4QXKF2bxniZQJOSuVar-0chhj_e_xT8",
-            authDomain: "e-commerce-store-9f306.firebaseapp.com", // Replace with your actual Firebase Auth Domain
-            projectId: "e-commerce-store-9f306", // Replace with your actual Firebase Project ID
-            storageBucket: "e-commerce-store-9f306.firebasestorage.app", // Replace with your actual Firebase Storage Bucket
-            messagingSenderId: "125749736362", // Replace with your actual Firebase Messaging Sender ID
-            appId: "1:125749736362:web:31706d499c4027d62e31d3" // Replace with your actual Firebase App ID
+            authDomain: "e-commerce-store-9f306.firebaseapp.com",
+            projectId: "e-commerce-store-9f306",
+            storageBucket: "e-commerce-store-9f306.firebasestorage.app",
+            messagingSenderId: "125749736362",
+            appId: "1:125749736362:web:31706d499c4027d62e31d3"
         };
 
+        // Firebase ইনিশিয়ালাইজেশন
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // গ্লোবাল ভ্যারিয়েবলস
         const categorySectionsContainer = document.getElementById('category-sections');
-        // const categoryContainer = document.getElementById('category-container'); // Keep if you want top buttons
         const searchInput = document.getElementById('searchInput');
-        let allMovies = []; // Store all movies globally
+        const loadingSpinner = document.querySelector('.loading-spinner');
+        const movieModal = document.getElementById('movieModal');
+        const modalContent = document.getElementById('modalContent');
+        const categoryNav = document.getElementById('category-nav');
+        const themeToggle = document.getElementById('themeToggle');
+        let allMovies = [];
 
+        // থিম টগল
+        let isDarkTheme = true;
+        themeToggle.addEventListener('click', () => {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('light-theme');
+            themeToggle.innerHTML = isDarkTheme ? 
+                '<i class="fas fa-moon"></i>' : 
+                '<i class="fas fa-sun"></i>';
+        });
+
+        // লোডিং স্পিনার কন্ট্রোল
+        function showLoading() {
+            loadingSpinner.classList.add('active');
+        }
+
+        function hideLoading() {
+            loadingSpinner.classList.remove('active');
+        }
+
+        // মুভি লোড ফাংশন
         async function loadMovies() {
             try {
+                showLoading();
                 const querySnapshot = await getDocs(collection(db, "movies"));
-                allMovies = []; // Clear previous movies
-                const moviesByCategory = {}; // Object to group movies by category
+                allMovies = [];
+                const moviesByCategory = {};
 
                 querySnapshot.forEach((doc) => {
                     const movie = { id: doc.id, ...doc.data() };
                     allMovies.push(movie);
 
-                    // Group movies by category
-                    const category = movie.category || 'Other';
+                    const category = movie.category || 'অন্যান্য';
                     if (!moviesByCategory[category]) {
                         moviesByCategory[category] = [];
                     }
                     moviesByCategory[category].push(movie);
                 });
 
+                populateCategories(Object.keys(moviesByCategory));
                 displayCategorySections(moviesByCategory);
-                // populateCategories(Object.keys(moviesByCategory)); // Populate top buttons if needed
+                hideLoading();
 
             } catch (error) {
-                console.error("Error loading movies: ", error);
-                 categorySectionsContainer.innerHTML = '<p>Error loading movies.</p>'; // Display error to user
+                console.error("মুভি লোড করতে সমস্যা হয়েছে: ", error);
+                categorySectionsContainer.innerHTML = '<p>মুভি লোড করতে সমস্যা হয়েছে।</p>';
+                hideLoading();
             }
         }
 
+        // মুভি কার্ড তৈরি
         function createMovieCardElement(movie, isGridView = false) {
-             const movieCard = document.createElement('div');
-             movieCard.classList.add('movie-card');
-             if(isGridView) {
-                 // Add a class if this card is part of a grid (e.g., search results or See All view)
-                 // This allows CSS to change its layout (e.g., show description)
-                 movieCard.classList.add('grid-item');
-             }
+            const movieCard = document.createElement('div');
+            movieCard.classList.add('movie-card');
+            if(isGridView) {
+                movieCard.classList.add('grid-item');
+            }
 
-             // Optional: Add quality label if 'quality' field exists in movie data
-             const qualityLabel = movie.quality ? `<div class="quality-label">${movie.quality}</div>` : '';
+            const rating = movie.rating ? 
+                `<div class="rating"><i class="fas fa-star"></i> ${movie.rating}</div>` : '';
+            const qualityLabel = movie.quality ? 
+                `<div class="quality-label">${movie.quality}</div>` : '';
 
+            movieCard.innerHTML = `
+                ${qualityLabel}
+                ${rating}
+                <img src="${movie.posterUrl || 'https://via.placeholder.com/300x280?text=No+Image'}" 
+                     alt="${movie.title}"
+                     loading="lazy">
+                <div class="info">
+                    <h3>${movie.title}</h3>
+                    <div class="buttons">
+                        <button class="watch-btn" data-url="${movie.movieUrl || '#'}">
+                            <i class="fas fa-play"></i> দেখুন
+                        </button>
+                        <button class="download-btn" data-url="${movie.movieUrl || '#'}">
+                            <i class="fas fa-download"></i> ডাউনলোড
+                        </button>
+                    </div>
+                </div>
+            `;
 
-             movieCard.innerHTML = `
-                 ${qualityLabel}
-                 <img src="${movie.posterUrl || 'https://via.placeholder.com/300x280?text=No+Image'}" alt="${movie.title}">
-                 <div class="info">
-                     <h3>${movie.title}</h3>
-                     <p>${movie.category || 'Unknown'}</p>
-                     <!-- Description hidden by default in CSS, shown in grid-item -->
-                     <p class="description">${movie.description || 'No description available'}</p>
-                     <div class="buttons">
-                         <button class="watch-btn" onclick="window.open('${movie.movieUrl || '#'}', '_blank')">Watch</button>
-                         <button class="download-btn" onclick="window.location.href='${movie.movieUrl || '#'}'">Download</button>
-                     </div>
-                 </div>
-             `;
-             return movieCard;
-         }
+            // ইভেন্ট লিসেনার
+            movieCard.querySelector('.watch-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const url = e.target.closest('.watch-btn').dataset.url;
+                window.open(url, '_blank');
+            });
 
+            movieCard.querySelector('.download-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const url = e.target.closest('.download-btn').dataset.url;
+                window.location.href = url;
+            });
+
+            movieCard.addEventListener('click', () => showMovieDetails(movie));
+            return movieCard;
+        }
+
+        // ক্যাটাগরি সেকশন প্রদর্শন
         function displayCategorySections(moviesByCategory) {
-             categorySectionsContainer.innerHTML = ''; // Clear previous content
+            categorySectionsContainer.innerHTML = '';
+            const sortedCategories = Object.keys(moviesByCategory).sort();
 
-             // Sort categories alphabetically, maybe put "Latest" or a specific category first
-             const sortedCategories = Object.keys(moviesByCategory).sort();
+            sortedCategories.forEach(category => {
+                const movies = moviesByCategory[category];
+                if (!movies || movies.length === 0) return;
 
-             sortedCategories.forEach(category => {
-                 const movies = moviesByCategory[category];
-                 if (!movies || movies.length === 0) return; // Skip empty categories
+                const section = document.createElement('section');
+                section.classList.add('category-section');
+                section.id = `category-${category.toLowerCase().replace(/\s+/g, '-')}`;
 
-                 const section = document.createElement('section');
-                 section.classList.add('category-section');
+                const header = document.createElement('div');
+                header.classList.add('category-header');
+                header.innerHTML = `
+                    <h2><i class="fas fa-film"></i> ${category}</h2>
+                    <button class="see-all-btn" data-category="${category}">
+                        সব দেখুন <i class="fas fa-arrow-right"></i>
+                    </button>
+                `;
 
-                 const header = document.createElement('div');
-                 header.classList.add('category-header');
-                 header.innerHTML = `
-                     <h2>${category}</h2>
-                     <button class="see-all-btn" data-category="${category}">See All</button>
-                     <!-- Optional: Add navigation arrows here if implementing carousel -->
-                     <!-- <div class="nav-arrows">
-                         <button><</button>
-                         <button>></button>
-                     </div> -->
-                 `;
+                const movieRow = document.createElement('div');
+                movieRow.classList.add('movie-row');
 
-                 const movieRow = document.createElement('div');
-                 movieRow.classList.add('movie-row');
+                movies.forEach(movie => {
+                    const movieCard = createMovieCardElement(movie);
+                    movieRow.appendChild(movieCard);
+                });
 
-                 // Display a subset or all movies in the row (for simplicity, showing all in row)
-                 // In a real app, you might limit this to a few and use JS for scrolling
-                 movies.forEach(movie => {
-                     const movieCard = createMovieCardElement(movie);
-                     movieRow.appendChild(movieCard);
-                 });
+                section.appendChild(header);
+                section.appendChild(movieRow);
+                categorySectionsContainer.appendChild(section);
+            });
 
-                 section.appendChild(header);
-                 section.appendChild(movieRow);
-                 categorySectionsContainer.appendChild(section);
-             });
-
-            // Add event listeners to See All buttons *after* they are added to the DOM
+            // See All বাটন ইভেন্ট
             document.querySelectorAll('.see-all-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const category = event.target.getAttribute('data-category');
+                    const category = event.target.dataset.category;
                     filterAndDisplayCategory(category);
                 });
             });
-         }
+        }
 
-         // Function to display movies for a specific category in a grid view (like "See All" page)
-         function filterAndDisplayCategory(category) {
-             categorySectionsContainer.innerHTML = ''; // Clear category sections
+        // ক্যাটাগরি ন্যাভিগেশন পপুলেট
+        function populateCategories(categories) {
+            categoryNav.innerHTML = `
+                <button data-category="all" class="active">
+                    <i class="fas fa-home"></i> সব
+                </button>
+            `;
 
-             const filteredMovies = allMovies.filter(movie => movie.category === category);
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.setAttribute('data-category', category);
+                button.innerHTML = `<i class="fas fa-film"></i> ${category}`;
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.category-nav button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                    filterAndDisplayCategory(category);
+                });
+                categoryNav.appendChild(button);
+            });
+        }
 
-             const section = document.createElement('section');
-             section.classList.add('category-section'); // Use section for structure
+        // ক্যাটাগরি ফিল্টার
+        function filterAndDisplayCategory(category) {
+            categorySectionsContainer.innerHTML = '';
+            showLoading();
 
-             const header = document.createElement('div');
-             header.classList.add('category-header');
-              // Add a back button or "All Categories" button here
-             header.innerHTML = `
-                  <h2>${category} Movies</h2>
-                  <button class="see-all-btn" onclick="loadMovies()">All Categories</button>
-              `;
-             section.appendChild(header);
-
-
-             const movieGrid = document.createElement('div');
-             movieGrid.classList.add('movie-grid-filtered'); // Use the grid style
-
-             if (filteredMovies.length > 0) {
-                 filteredMovies.forEach(movie => {
-                     // Pass true to indicate grid view, potentially changing card style
-                     const movieCard = createMovieCardElement(movie, true);
-                     movieGrid.appendChild(movieCard);
-                 });
-             } else {
-                 movieGrid.innerHTML = '<p>No movies found in this category.</p>';
-             }
-
-            section.appendChild(movieGrid);
-            categorySectionsContainer.appendChild(section);
-
-            // Optional: Scroll to the top of the results
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-         }
-
-         // Function to handle search
-         function searchMovies() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            categorySectionsContainer.innerHTML = ''; // Clear category sections
-
-            if (searchTerm === '') {
-                loadMovies(); // Load all category sections if search is empty
-                return;
-            }
-
-            const filteredMovies = allMovies.filter(movie =>
-                movie.title && movie.title.toLowerCase().includes(searchTerm) ||
-                movie.description && movie.description.toLowerCase().includes(searchTerm) ||
-                movie.category && movie.category.toLowerCase().includes(searchTerm)
-            );
+            const filteredMovies = category === 'all' 
+                ? allMovies 
+                : allMovies.filter(movie => movie.category === category);
 
             const section = document.createElement('section');
-            section.classList.add('category-section'); // Use section for structure
+            section.classList.add('category-section');
 
             const header = document.createElement('div');
-             header.classList.add('category-header');
-             header.innerHTML = `
-                  <h2>Search Results for "${searchTerm}"</h2>
-                   <button class="see-all-btn" onclick="loadMovies()">All Categories</button>
-              `;
-            section.appendChild(header);
+            header.classList.add('category-header');
+            header.innerHTML = `
+                <h2><i class="fas fa-film"></i> ${category === 'all' ? 'সব মুভি' : category}</h2>
+                <button class="see-all-btn" onclick="window.location.reload()">
+                    <i class="fas fa-home"></i> হোম
+                </button>
+            `;
 
             const movieGrid = document.createElement('div');
-            movieGrid.classList.add('movie-grid-filtered'); // Use the grid style
+            // 'movie-grid-filtered' ক্লাসটি CSS ফাইলে যোগ করা হয়েছে
+            movieGrid.classList.add('movie-grid-filtered'); 
 
             if (filteredMovies.length > 0) {
                 filteredMovies.forEach(movie => {
-                     // Pass true to indicate grid view
                     const movieCard = createMovieCardElement(movie, true);
                     movieGrid.appendChild(movieCard);
                 });
             } else {
-                movieGrid.innerHTML = '<p>No movies found matching your search.</p>';
+                movieGrid.innerHTML = '<p>এই ক্যাটাগরিতে কোন মুভি নেই।</p>';
             }
+
+            section.appendChild(header);
             section.appendChild(movieGrid);
             categorySectionsContainer.appendChild(section);
 
-            // Optional: Scroll to the top of the results
+            hideLoading();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-         }
+        }
 
+        // মুভি সার্চ
+        function searchMovies() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                loadMovies();
+                return;
+            }
 
-        searchInput.addEventListener('input', searchMovies); // Use 'input' for live search
+            showLoading();
+            const filteredMovies = allMovies.filter(movie =>
+                (movie.title && movie.title.toLowerCase().includes(searchTerm)) ||
+                (movie.description && movie.description.toLowerCase().includes(searchTerm)) ||
+                (movie.category && movie.category.toLowerCase().includes(searchTerm))
+            );
 
-        window.onload = loadMovies; // Initial load of all movies grouped by category
+            categorySectionsContainer.innerHTML = '';
+            
+            const section = document.createElement('section');
+            section.classList.add('category-section');
 
+            const header = document.createElement('div');
+            header.classList.add('category-header');
+            header.innerHTML = `
+                <h2><i class="fas fa-search"></i> "${searchTerm}" এর জন্য সার্চ রেজাল্ট</h2>
+                <button class="see-all-btn" onclick="window.location.reload()">
+                    <i class="fas fa-home"></i> হোম
+                </button>
+            `;
 
-        // If you decide to use the top category buttons for filtering the page
-        // function populateCategories(categories) {
-        //     categoryContainer.innerHTML = '';
-        //     // Add "All" button
-        //      const allButton = document.createElement('button');
-        //      allButton.classList.add('category-btn');
-        //      allButton.textContent = 'All';
-        //      allButton.addEventListener('click', loadMovies); // Load all sections
-        //      categoryContainer.appendChild(allButton);
+            const movieGrid = document.createElement('div');
+            movieGrid.classList.add('movie-grid-filtered');
 
-        //     categories.forEach(category => {
-        //         const button = document.createElement('button');
-        //         button.classList.add('category-btn');
-        //         button.setAttribute('data-category', category);
-        //         button.textContent = category;
-        //         button.addEventListener('click', () => filterAndDisplayCategory(category)); // Filter to specific category grid
-        //         categoryContainer.appendChild(button);
-        //     });
-        // }
+            if (filteredMovies.length > 0) {
+                filteredMovies.forEach(movie => {
+                    const movieCard = createMovieCardElement(movie, true);
+                    movieGrid.appendChild(movieCard);
+                });
+            } else {
+                movieGrid.innerHTML = '<p>কোন মুভি পাওয়া যায়নি।</p>';
+            }
 
+            section.appendChild(header);
+            section.appendChild(movieGrid);
+            categorySectionsContainer.appendChild(section);
 
-        // Expose functions if needed globally (though event listeners are preferred)
-        // window.filterAndDisplayCategory = filterAndDisplayCategory; // See All button uses this now via listener
-        // window.searchMovies = searchMovies; // Search input uses this now via listener
+            hideLoading();
+        }
 
+        // মুভি ডিটেইলস মডাল
+        function showMovieDetails(movie) {
+            modalContent.innerHTML = `
+                <div class="movie-details">
+                    <div class="movie-poster">
+                        <img src="${movie.posterUrl}" alt="${movie.title}">
+                    </div>
+                    <div class="movie-info">
+                        <h2>${movie.title}</h2>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-star"></i>
+                                <span>${movie.rating || 'N/A'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-video"></i>
+                                <span>${movie.quality || 'N/A'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-film"></i>
+                                <span>${movie.category || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="movie-description">
+                            ${movie.description || 'কোন বিবরণ নেই'}
+                        </div>
+                        <div class="buttons">
+                            <button class="watch-btn" onclick="window.open('${movie.movieUrl}', '_blank')">
+                                <i class="fas fa-play"></i> দেখুন
+                            </button>
+                            <button class="download-btn" onclick="window.location.href='${movie.movieUrl}'">
+                                <i class="fas fa-download"></i> ডাউনলোড
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                ${movie.trailerUrl ? `
+                    <div class="trailer-section">
+                        <h3>ট্রেইলার</h3>
+                        <iframe src="${movie.trailerUrl}" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                ` : ''}
+            `;
+            movieModal.style.display = 'block';
+        }
+
+        // মডাল বন্ধ করার ফাংশন
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            movieModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === movieModal) {
+                movieModal.style.display = 'none';
+            }
+        });
+
+        // সার্চ ইভেন্ট
+        let searchTimeout;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(searchMovies, 500);
+        });
+
+        // পেজ লোড হওয়ার সময় মুভি লোড করা
+        window.onload = loadMovies;
+
+        // গ্লোবাল ফাংশন এক্সপোজ
+        window.filterAndDisplayCategory = filterAndDisplayCategory;
+        window.showMovieDetails = showMovieDetails;
     </script>
 </body>
 </html>
